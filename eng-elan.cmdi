@@ -45,25 +45,26 @@
             
             <!--
                 The specified tier should contain the fragments uttered in English
-            -->
+            
             <input type="tier" optional="false" mimetypes="text/xml" 
                 info="Segmented tier">tier</input>
+                -->
                 
-            <input level="basic" type="auxiliary" optional="true" default="AWS" 
-                info="AWS or GCloud">transcription_service</input>
+            <textparam convoc="AWS GCloud" type="auxiliary" optional="false"
+                info="Transcription service">transcription_service</textparam>
             
             <!--
                 Name of the bucket where your audio should be stored
             -->
-            <input level="basic" type="auxiliary" optional="false" 
-                info="Bucket name">bucket</input>
+            <textparam level="basic" type="auxiliary" mimetypes="text/plain" optional="false" 
+                info="Bucket name">bucket</textparam>
 
             <!--
                 Name of your transcription file
                 The name should be unique
             -->
-            <input level="basic" type="auxiliary" optional="false"
-                info="Filename">filename</input>
+            <textparam level="basic" type="auxiliary" mimetypes="text/plain" optional="false"
+                info="Filename">filename</textparam>
 
              <!--
                 Path where your transcription should be stored

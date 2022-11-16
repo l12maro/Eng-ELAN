@@ -7,13 +7,14 @@ s3 = boto3.client('s3')
 def upload_file(filename, bucket, key):
     s3.upload_file(filename, bucket, key)
 
-def transcribe_file(job_name, file_uri, output_uri, output_url):
+def transcribe_file(job_name, file_uri, bucket, output_url):
+    print(file_uri)
     transcribe_client.start_transcription_job(
         TranscriptionJobName=job_name,
         Media={'MediaFileUri': file_uri},
         MediaFormat='wav',
         LanguageCode='en-US',
-        OutputBucketName=output_uri
+        OutputBucketName=bucket
     )
 
     max_tries = 60
@@ -25,7 +26,7 @@ def transcribe_file(job_name, file_uri, output_uri, output_url):
             print(f"Job {job_name} is {job_status}.")
             if job_status == 'COMPLETED':
                 #download json file and access it
-                s3.download_file(output_uri, job_name + ".json", output_url + job_name + ".json")
+                s3.download_file(bucket, job_name + ".json", output_url + job_name + ".json")
                 return json.load(open(output_url + job_name + ".json"))
                 #print("Transcription: " + transcription['results']['transcripts'][0]['transcript'])
 
@@ -34,6 +35,11 @@ def transcribe_file(job_name, file_uri, output_uri, output_url):
             print(f"Waiting for {job_name}. Current status is {job_status}.")
         time.sleep(10)
 
+#returns the transcription information as a list of dictionaries
+def annotation_info(transcription):
+    split_labels = []
+
+    return split_labels
 
 #def main():
     #transcribe_client = boto3.client('transcribe')

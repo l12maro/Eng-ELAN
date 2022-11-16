@@ -22,4 +22,4 @@ SET PATH="%PATH%:%FFMPEG_DIR%"
 
 :: Activate the virtual environment, then execute the main script.
 ::"C:\Python39\python" "C:\Program Files\ELAN_6.4\app\extensions\eng-elan-main\eng-elan-main.py" runserver
-start "C:\Users\loren\ELAN_6.4\app\extensions\eng-elan-main\eng-elan.py"
+"C:\Users\loren\AppData\Local\Microsoft\WindowsApps\python3.9.exe" "C:\Users\loren\ELAN_6.4\app\extensions\eng-elan-main\eng-elan.py" runserver

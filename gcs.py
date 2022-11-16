@@ -1,4 +1,5 @@
 from google.cloud import speech
+from google.cloud import storage
 
 # Instantiates a client
 client = speech.SpeechClient()
@@ -6,8 +7,16 @@ client = speech.SpeechClient()
 #TO DO: Add function to upload file
 # The name of the audio file to transcribe
 
-def upload_file():
-    pass
+def upload_file(bucket, filename, destination):
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket)
+    blob = bucket.blob(destination)
+
+    blob.upload_from_filename(filename)
+
+    print(
+        f"File {filename} uploaded to {destination}."
+    )
 
 def transcribe_speech(uri):
   audio = speech.RecognitionAudio(uri=uri)
@@ -25,4 +34,3 @@ def transcribe_speech(uri):
   #for result in response.results:
     #print("Transcript: {}".format(result.alternatives[0].transcript))
 
-transcribe_speech()
