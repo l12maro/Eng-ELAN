@@ -27,9 +27,8 @@ def transcribe_file(job_name, file_uri, bucket, output_url):
             if job_status == 'COMPLETED':
                 #download json file and access it
                 s3.download_file(bucket, job_name + ".json", output_url + job_name + ".json")
-                return json.load(open(output_url + job_name + ".json"))
-                #print("Transcription: " + transcription['results']['transcripts'][0]['transcript'])
-
+                transcriptionfile = json.load(open(output_url + job_name + ".json"))
+                return annotation_info(transcriptionfile)
             break
         else:
             print(f"Waiting for {job_name}. Current status is {job_status}.")
@@ -38,14 +37,14 @@ def transcribe_file(job_name, file_uri, bucket, output_url):
 #returns the transcription information as a list of dictionaries
 def annotation_info(transcription):
     split_labels = []
-
+    list_of_items = transcription['results']['items']
+    for items in list_of_items:
+        if items['type'] == "punctuation": continue
+        start = int(float(items['start_time']) * 1000)
+        end = int(float(items['end_time']) * 1000)
+        content = items["alternatives"][0]["content"]
+        split_labels.append(dict( \
+            [('start', start), \
+             ('end', end),
+             ("token", content)]))
     return split_labels
-
-#def main():
-    #transcribe_client = boto3.client('transcribe')
-    #s3 = boto3.client('s3')
-    #transcribe_file('prueba', file_uri, output_uri, output_url, transcribe_client, s3)
-
-
-#if __name__ == '__main__':
-#    main()

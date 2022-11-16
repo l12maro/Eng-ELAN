@@ -44,11 +44,11 @@
                 info="Input audio file (WAV)">source</input>
             
             <!--
-                The specified tier should contain the fragments uttered in English
-            
-            <input type="tier" optional="false" mimetypes="text/xml" 
-                info="Segmented tier">tier</input>
+                Specify the url to your Google Cloud Project
                 -->
+            
+            <textparam level="basic" optional="false" mimetypes="text/plain"
+                info="Url to Google Cloud project">project</textparam>
                 
             <textparam convoc="AWS GCloud" type="auxiliary" optional="false"
                 info="Transcription service">transcription_service</textparam>

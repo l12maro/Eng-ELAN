@@ -4,11 +4,6 @@ import re, sys
 import aws, gcs
 import xml.etree.ElementTree as ET
 
-#TODO: Adapt for Google Cloud: transcription conversion in aws/gcs files instead on in this code
-#TODO: Add each transcription within their timestamps
-## To Discuss: Amazon only provides word-level word stamps, while google provides sentence and word-level.
-## Use only word-level for both or add sentence-level option when using google?
-
 def add_transcriptions(output, transcriptions):
     # Then open 'output_segments' for writing, and return all of the new speech
     # segments transcriptions as the contents of <span> elements (see
@@ -21,14 +16,11 @@ def add_transcriptions(output, transcriptions):
         output_segs.write(
             '<TIER xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:avatech-tier.xsd" columns="English">\n')
 
-        #output_segs.write( \
-        #            '<span start="%.3f" end="%.3f"><v></v></span>\n' % \
-        #            ((a['start'] / 1000.0) + adjust_start_s, \
-        #             (a['end'] / 1000.0) + adjust_end_s))
-        print(transcriptions['results']['transcripts'][0]['transcript'])
-        output_segs.write(
-                    '<span start="0" end= "2000"><v>' + transcriptions['results']['transcripts'][0]['transcript'] + '</v></span>\n')
-        ##which attribute can be used for text value?
+        for t in transcriptions:
+            start = t['start']
+            end = t['end']
+            token = t['token']
+            output_segs.write(f'<span start="{start}" end="{end}"><v>{token}</v></span>\n')
 
         output_segs.write('</TIER>\n')
 
@@ -114,15 +106,14 @@ def main():
     if params['transcription_service'] == 'AWS':
         aws.upload_file(params["source"], params["bucket"], filename)
         uri_path = "s3://" + params["bucket"] + "/" + filename
-        #transcription now returns the json file with the transcription output
+        #transcription now returns the information we need
         transcription = aws.transcribe_file(filename, uri_path, params["bucket"], params["output_path"])
 
-    #Google Cloud is used as default service when the specified parameter is not AWS
     else:
         #upload wav file to the chosen service
-        gcs.upload_file(params["bucket"], params["source"], filename)
+        gcs.upload_file(params["bucket"], params["source"], filename, params["project"])
         uri_path = "gs://" + params["bucket"] + "/" + filename
-        #get the transcription
+        #transcription now returns the information we need
         transcription = gcs.transcribe_speech(uri_path)
 
     #now we add them to the eaf file within the chosen tier
