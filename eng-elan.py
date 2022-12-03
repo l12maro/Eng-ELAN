@@ -1,10 +1,69 @@
-import os
-from re import findall
 import re, sys
+from pathlib import Path
 import aws, gcs
 import xml.etree.ElementTree as ET
 
-def add_transcriptions(output, transcriptions):
+def add_transcriptions(output, tier, transcription):
+    output.write(
+        '<TIER columns="English-utterances">\n')
+    tree = ET.parse(tier)
+    root = tree.getroot()
+    # match transcription timestamps with previously annotated spans
+    for times in root.iter("span"):
+        #only add transcriptions to empty spans
+        for t in times:
+            if t.text != None:
+                output.write(str(ET.tostring(t)))
+                continue
+        #extract times of span
+        start = times.attrib['start']
+        start_span = int(float(start) * 1000)
+        end = times.attrib['end']
+        end_span = int(float(end) * 1000)
+        output.write(f'<span start="{start}" end="{end}"><v>')
+        #get transcription timestamps
+        i = 0
+        for e in transcription:
+            start = e['start']
+            end = e['end']
+            #include in annotations all timestamps that correspond approximately
+            if start_span < end and end <= end_span:
+                if i > 0:
+                    output.write(" " + e['token'])
+                else:
+                    output.write(e['token'])
+                i += 1
+        output.write('</v></span>\n')
+    output.write('</TIER>\n')
+
+#A helper function of create-transcriptions for utterance-level extraction
+def utterance_level(output, transcriptions, threshold):
+    threshold = (int(float(threshold)))
+    output.write(
+        '<TIER columns="English-utterances">\n')
+    # divide utterances based on the space between words
+    i = 0
+    utterance = ""
+    start_utterance = 0
+    for t in transcriptions:
+        i += 1
+        end = t['end']
+        utterance += t['token']
+        # compare the lengths of the end of the first word and the beginning of the next,
+        # as long as there is a next word
+        if i < len(transcriptions):
+            next_start = transcriptions[i]['start']
+        else:
+            output.write(f'<span start="{start_utterance}" end="{end}"><v>{utterance}</v></span>\n')
+        if next_start > end + threshold:
+            output.write(f'<span start="{start_utterance}" end="{end}"><v>{utterance}</v></span>\n')
+            start_utterance = next_start
+            utterance = ""
+        else:
+            utterance += " "
+    output.write('</TIER>\n')
+
+def create_transcriptions(output, transcriptions, level, threshold, tier):
     # Then open 'output_segments' for writing, and return all of the new speech
     # segments transcriptions as the contents of <span> elements (see
     # below).
@@ -14,82 +73,25 @@ def add_transcriptions(output, transcriptions):
 
         # Write out the adjusted annotations
         output_segs.write(
-            '<TIER xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:avatech-tier.xsd" columns="English">\n')
+            '<TIERS xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:avatech-tiers.xsd">\n')
 
-        for t in transcriptions:
-            start = t['start']
-            end = t['end']
-            token = t['token']
-            output_segs.write(f'<span start="{start}" end="{end}"><v>{token}</v></span>\n')
-
-        output_segs.write('</TIER>\n')
-
-
-    '''
-    # Which tier?
-    tier_name = tier
-    tree = ET.parse(file_[:-3] + "eaf")
-
-    root = tree.getroot()
-
-    #match transcription timestamps with tiers
-    i = 1
-    x = 0
-    for times in root.iter('TIME_SLOT'):
-        j = i + 1
-        element = root.find('TIME_ORDER')
-        e = element.findall('TIME_SLOT')
-        s_time = ""
-        e_time = ""
-        for t in e:
-            if t.get('TIME_SLOT_ID') == "ts" + str(i):
-                s_time = t.get('TIME_VALUE')
-
-            if t.get('TIME_SLOT_ID') == "ts" + str(j):
-                e_time = t.get('TIME_VALUE')
-                break
-        list_of_items = transcriptions['results']['items']
-        while True:
-            if x >= len(list_of_items): break
-            #convert time format and check where it belongs
-            token = list_of_items[x]
-            x += 1
-            if token['type'] == "punctuation": continue
-            token_start = token['start_time']
-            token_start = int(float(token_start) * 1000)
-            token_end = token['end_time']
-            token_end = int(float(token_end) * 1000)
-            
-            if token_start >= int(s_time) and token_end <= int(e_time):
-                #find the tier segment it belongs to
-                for tier in root.iter('TIER'):
-                    if tier.attrib['TIER_ID'] == tier_name:
-                        for anon in tier.iter('ALIGNABLE_ANNOTATION'):
-                            #for a in anon:
-                            if anon.attrib['ANNOTATION_ID'] == "a" + str(int(j/2)):
-                                for annotation in anon.iter('ANNOTATION_VALUE'):
-                                    # insert text
-                                    source_text = token["alternatives"][0]["content"]
-                                
-                                    # update the annotation
-                                    if annotation.text == None:
-                                        annotation.text = str(source_text)
-                                    else:
-                                        text = " " + str(source_text)
-                                        annotation.text += text
-
-                                    # feedback
-                                    #print("done")
-
-            
-            #go to the next tier when all the words have been inserted
+        if level == 'Utterance' or level == 'Both':
+            if tier == "":
+                utterance_level(output_segs, transcriptions, threshold)
             else:
-                if token_end > int(e_time): break
-        i += 2
+                add_transcriptions(output_segs, tier, transcriptions)
 
-    # Save the file to output dir
-    tree.write(tree)
-    '''
+        if level == 'Word' or level == 'Both':
+            output_segs.write('<TIER columns="English-words">\n')
+            for t in transcriptions:
+                start = t['start']
+                end = t['end']
+                token = t['token']
+                output_segs.write(f'<span start="{start}" end="{end}"><v>{token}</v></span>\n')
+
+            output_segs.write('</TIER>\n')
+        output_segs.write('</TIERS>\n')
+
 def main():
     # Read in all of the parameters that ELAN passes to this local recognizer on
     # standard input.
@@ -117,7 +119,7 @@ def main():
         transcription = gcs.transcribe_speech(uri_path)
 
     #now we add them to the eaf file within the chosen tier
-    add_transcriptions(params['output_segments'], transcription)
+    create_transcriptions(params['output_segments'], transcription, params['level'], params['threshold'], params['tier'])
 
     # Finally, tell ELAN that we're done.
     print('RESULT: DONE.', flush=True)

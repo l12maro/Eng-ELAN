@@ -50,9 +50,34 @@
             <textparam level="basic" optional="false" mimetypes="text/plain"
                 info="Url to Google Cloud project">project</textparam>
                 
+            <!--
+                Select your transcription service
+                -->
+
             <textparam convoc="AWS GCloud" type="auxiliary" optional="false"
                 info="Transcription service">transcription_service</textparam>
             
+            <!--
+                Select the annotation level
+                -->
+
+            <textparam convoc="Utterance Word Both" type="auxiliary" optional="false"
+                info="Annotation level">level</textparam>
+
+            <!--
+                Select tier for annotation at utterance level
+                -->
+
+            <input level="basic" type="tier" optional="true" mimetypes="text/plain" 
+            info="Select a tier for utterance-level annotation">tier</input>
+            
+            <!--
+                Select the annotation level
+                -->
+
+            <numparam level="basic" type="int" min="1" max="500" default="100"
+                info="Utterance threshold (smaller value = less silence between utterances)">threshold</numparam>
+
             <!--
                 Name of the bucket where your audio should be stored
             -->
