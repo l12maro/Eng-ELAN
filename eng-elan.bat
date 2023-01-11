@@ -14,7 +14,7 @@
 :: ** Edit the following line to point to the directory in which 'ffmpeg' is
 :: ** found on this computer.
 :: **
-SET FFMPEG_DIR="C:\Users\loren\Python39\Lib\site-packages"
+SET FFMPEG_DIR=""
 
 SET LC_ALL="en_US.UTF-8"
 SET PYTHONIOENCODING="utf-8"
@@ -22,4 +22,4 @@ SET PATH="%PATH%:%FFMPEG_DIR%"
 
 :: Activate the virtual environment, then execute the main script.
 ::"C:\Python39\python" "C:\Program Files\ELAN_6.4\app\extensions\eng-elan-main\eng-elan-main.py" runserver
-"C:\Users\loren\AppData\Local\Microsoft\WindowsApps\python3.9.exe" "C:\Users\loren\ELAN_6.4\app\extensions\eng-elan-main\eng-elan.py" runserver
+"C:\Program Files\ELAN_6.4\app\extensions\eng-elan-main\venv-eng\Scripts\python.exe" "C:\Program Files\ELAN_6.4\app\extensions\eng-elan-main\eng-elan.py" runserver

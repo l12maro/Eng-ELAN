@@ -10,30 +10,32 @@ def add_transcriptions(output, tier, transcription):
     root = tree.getroot()
     # match transcription timestamps with previously annotated spans
     for times in root.iter("span"):
-        #only add transcriptions to empty spans
-        for t in times:
-            if t.text != None:
-                output.write(str(ET.tostring(t)))
-                continue
         #extract times of span
         start = times.attrib['start']
         start_span = int(float(start) * 1000)
         end = times.attrib['end']
         end_span = int(float(end) * 1000)
-        output.write(f'<span start="{start}" end="{end}"><v>')
-        #get transcription timestamps
-        i = 0
-        for e in transcription:
-            start = e['start']
-            end = e['end']
-            #include in annotations all timestamps that correspond approximately
-            if start_span < end and end <= end_span:
-                if i > 0:
-                    output.write(" " + e['token'])
-                else:
-                    output.write(e['token'])
-                i += 1
-        output.write('</v></span>\n')
+        output.write(f'<span start="{start}" end="{end}">')
+        #only add transcriptions to empty spans
+        for t in times:
+            if t.text != None:
+                output.write(str(ET.tostring(t))[2:-1])
+            else:
+                output.write("<v>")
+                #get transcription timestamps
+                i = 0
+                for e in transcription:
+                    start = e['start']
+                    end = e['end']
+                    #include in annotations all timestamps that correspond approximately
+                    if start_span < end and end <= end_span:
+                        if i > 0:
+                            output.write(" " + e['token'])
+                        else:
+                            output.write(e['token'])
+                        i += 1
+                output.write('</v>')
+        output.write('</span>\n')
     output.write('</TIER>\n')
 
 #A helper function of create-transcriptions for utterance-level extraction
