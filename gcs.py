@@ -2,8 +2,7 @@ from google.cloud import speech
 from google.cloud import storage
 
 
-#TO DO: Add function to upload file
-# The name of the audio file to transcribe
+from google.cloud import storage
 
 def upload_file(bucket, filename, destination, project):
     storage_client = storage.Client(project=project)
@@ -55,16 +54,4 @@ def annotation_info(transcription):
                 [('start', start), \
                  ('end', end),
                  ("token", content)]))
-        print(split_labels)
-    #list_of_items = transcription['results']['items']
-    #for items in list_of_items:
-    #    if items['type'] == "punctuation": continue
-    #    start = int(float(items['start_time']) * 1000)
-    #    end = int(float(items['end_time']) * 1000)
-    #    content = items["alternatives"][0]["content"]
-    #    split_labels.append(dict( \
-    #        [('start', start), \
-    #         ('end', end),
-    #         ("token", content)]))
-    #print(split_labels)
     return split_labels

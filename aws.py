@@ -1,3 +1,4 @@
+import os
 import time, json
 import boto3
 
@@ -26,9 +27,13 @@ def transcribe_file(job_name, file_uri, bucket, output_url):
             print(f"Job {job_name} is {job_status}.")
             if job_status == 'COMPLETED':
                 #download json file and access it
-                s3.download_file(bucket, job_name + ".json", output_url + job_name + ".json")
-                transcriptionfile = json.load(open(output_url + job_name + ".json"))
-                return annotation_info(transcriptionfile)
+                file = output_url + job_name + ".json"
+                s3.download_file(bucket, job_name + ".json", file)
+                transcriptionfile = json.load(open(file))
+                annotation = annotation_info(transcriptionfile)
+                #remove json file once all the information is extracted
+                os.remove(file)
+                return annotation
             break
         else:
             print(f"Waiting for {job_name}. Current status is {job_status}.")
