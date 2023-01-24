@@ -14,7 +14,7 @@
 :: ** Edit the following line to point to the directory in which 'ffmpeg' is
 :: ** found on this computer.
 :: **
-SET FFMPEG_DIR=""
+SET FFMPEG_DIR="C:\ProgramData\chocolatey\lib"
 
 SET LC_ALL="en_US.UTF-8"
 SET PYTHONIOENCODING="utf-8"

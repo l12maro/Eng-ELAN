@@ -1,18 +1,15 @@
+import ffmpeg
 import whisper
-
-model = whisper.load_model("base")
-
 def transcribe_speech(audio):
+    model = whisper.load_model("base")
     result = model.transcribe(audio)
     labels = []
-    for segment_info in result:
-        start = int(float(result['start']) * 1000)
-        end = int(float(result['end']) * 1000)
-        content = result['text']
+    for segment_info in result['segments']:
+        start = int(float(segment_info['start']) * 1000)
+        end = int(float(segment_info['end']) * 1000)
+        content = segment_info['text']
         labels.append(dict( \
             [('start', start), \
              ('end', end),
-             ("token", content)]))
-    print(result)
-    print(labels)
+             ("text", content)]))
     return labels
