@@ -8,8 +8,8 @@ In order to use Eng-ELAN, the following open-source applications are required:
 
 The following command can be used to fetch the recognizer:
 ```
-git clone -b ELAN https://github.com/l12maro/ASR_English
-cd ASR-English
+git clone -b ELAN https://github.com/l12maro/Eng-ELAN
+cd Eng-ELAN
 
 python3 -m virtualenv venv-eng
 source venv-eng/bin/activate
