@@ -1,5 +1,5 @@
 # Eng-ELAN 0.1
-Eng-ELAN integrates the Text-to-Speech services offered by Amazon Web Services and Google Cloud to ELAN. It allows users to apply automatic transcription to English audio from ELAN's interface.
+Eng-ELAN integrates the Text-to-Speech services offered by WhisperAI, Amazon Web Services and Google Cloud to ELAN. It allows users to apply automatic transcription to English audio from ELAN's interface.
 
 ## Requirements and installation
 In order to use Eng-ELAN, the following open-source applications are required:
